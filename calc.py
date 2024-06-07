@@ -1,4 +1,5 @@
 import sys
+from functools import partial
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
@@ -11,11 +12,14 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+ERROR_MSG = "ERROR"
 WINDOW_SIZE = 235
 DISPLAY_HEIGHT = 35
 BUTTON_SIZE = 40
 
 class CalcWindow(QMainWindow):
+
+    # main window (GUI or view)
 
     def __init__(self):
         super().__init__()
@@ -53,11 +57,57 @@ class CalcWindow(QMainWindow):
 
         self.generalLayout.addLayout(buttonsLayout)
 
+    def setDisplayText(self, text):
+        self.display.setText(text)
+        self.display.setFocus()
+
+    def displayText(self):
+        return self.display.text()
+    
+    def clearDisplay(self):
+        self.setDisplayText("")
+
+def evaluateExpression(expression):
+    try:
+        result = str(eval(expression, {}, {}))
+    except Exception:
+        result = ERROR_MSG
+    return result
+
+class PyCalc:
+    # Controller class
+
+    def __init__(self, model, view):
+        self._evaluate = model
+        self._view = view
+        self._connectSignalsAndSlots()
+
+    def _calculateResult(self):
+        result = self._evaluate(expression = self._view.displayText())
+        self._view.setDisplayText(result)
+
+    def _buildExpression(self, subExpression):
+        if self._view.displayText() == ERROR_MSG:
+            self._view.clearDisplay()
+        expression = self._view.displayText() + subExpression
+        self._view.setDisplayText(expression)
+
+    def _connectSignalsAndSlots(self):
+        for keySymbol, button in self._view.buttonMap.items():
+            if keySymbol not in {"=", "C"}:
+                button.clicked.connect(
+                    partial(self._buildExpression, keySymbol)
+                )
+        self._view.buttonMap["="].clicked.connect(self._calculateResult)
+        self._view.display.returnPressed.connect(self._calculateResult)
+        self._view.buttonMap["C"].clicked.connect(self._view.clearDisplay)
+
 def main() :
 
     calcApp = QApplication([])
     calcWindow = CalcWindow()
     calcWindow.show()
+    PyCalc(model = evaluateExpression, view = calcWindow)
     sys.exit(calcApp.exec())
 
 if __name__ == "__main__":
