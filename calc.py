@@ -1,5 +1,6 @@
 import sys
 from functools import partial
+from math import sqrt, exp
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
@@ -13,9 +14,9 @@ from PyQt6.QtWidgets import (
 )
 
 ERROR_MSG = "ERROR"
-WINDOW_SIZE = 235
+# WINDOW_SIZE = 330
 DISPLAY_HEIGHT = 35
-BUTTON_SIZE = 40
+BUTTON_SIZE = 50
 
 class CalcWindow(QMainWindow):
 
@@ -24,7 +25,7 @@ class CalcWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Simple Calculator")
-        self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
+        self.setFixedSize(300, 400)
         self.generalLayout = QVBoxLayout()
         centralWidget = QWidget(self)
         centralWidget.setLayout(self.generalLayout)
@@ -43,10 +44,12 @@ class CalcWindow(QMainWindow):
         self.buttonMap = {}
         buttonsLayout = QGridLayout()
         keyBoard = [
-            ["7", "8", "9", "/", "C"],
-            ["4", "5", "6", "*", "("],
-            ["1", "2", "3", "-", ")"],
-            ["0", "00", ".", "+", "="],
+            ["^", "π", "DEL", "C"],
+            ["√", "(", ")", "/"],
+            ["7", "8", "9", "*"],
+            ["4", "5", "6", "-"],
+            ["1", "2", "3", "+"],
+            ["%", "0", ".", "="],
         ]
 
         for row, keys in enumerate(keyBoard):
@@ -67,10 +70,26 @@ class CalcWindow(QMainWindow):
     def clearDisplay(self):
         self.setDisplayText("")
 
+    def deleteLastChar(self):
+        currentText = self.display.text()
+        self.setDisplayText(currentText[:-1])
+
+
 def evaluateExpression(expression):
     try:
-        result = str(eval(expression, {}, {}))
-    except Exception:
+        expression = expression.replace("√", "sqrt(")
+        expression = expression.replace('^', "**")
+        # expression = expression.replace('e^', "exp(")
+        expression = expression.replace('π', '3.141592653589793')
+
+        if "sqrt(" in expression:
+            expression += ")"
+        # if "exp(" in expression:
+        #     expression += ")"
+
+        result = str(eval(expression, {"sqrt": sqrt, "exp": exp}, {}))
+
+    except Exception as e:
         result = ERROR_MSG
     return result
 
@@ -94,13 +113,14 @@ class PyCalc:
 
     def _connectSignalsAndSlots(self):
         for keySymbol, button in self._view.buttonMap.items():
-            if keySymbol not in {"=", "C"}:
+            if keySymbol not in {"=", "C", "DEL"}:
                 button.clicked.connect(
                     partial(self._buildExpression, keySymbol)
                 )
         self._view.buttonMap["="].clicked.connect(self._calculateResult)
         self._view.display.returnPressed.connect(self._calculateResult)
         self._view.buttonMap["C"].clicked.connect(self._view.clearDisplay)
+        self._view.buttonMap["DEL"].clicked.connect(self._view.deleteLastChar)
 
 def main() :
 
