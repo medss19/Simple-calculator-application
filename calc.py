@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 
 stylesheet = """
 QMainWindow {
-    background-color: #2E2E2E;
+    background-color: #2e2e2e;
 }
 
 QLineEdit {
@@ -30,7 +30,7 @@ QLineEdit {
 }
 
 QPushButton {
-    background-color: #fc94af;
+    background-color: #a1dad7;
     color: black;
     border: 2px solid black;
     border-radius: 10px;
@@ -44,12 +44,12 @@ QPushButton:pressed {
 }
 
 QPushButton#operator {
-    background-color: #ffe5f1;
+    background-color: #6baaae;
 }
 
 QPushButton#trigno {
 
-    background-color: #f5c3c2;
+    background-color: #00ffff;
 }
 
 QPushButton#operator:pressed {
@@ -61,7 +61,7 @@ QPushButton#trigno:pressed {
 }
 
 QPushButton#clear {
-    background-color: #ff1694;
+    background-color: #7fffd4;
 }
 
 QPushButton#clear:pressed {
@@ -69,11 +69,11 @@ QPushButton#clear:pressed {
 }
 
 QPushButton#delete {
-    background-color: #ff1694;
+    background-color: #7fffd4;
 }
 
 QPushButton#equal {
-    background-color: #fc4c4e;
+    background-color: #10a5f5;
 }
 
 QPushButton#delete:pressed {
